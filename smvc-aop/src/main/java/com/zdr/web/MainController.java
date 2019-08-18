@@ -17,7 +17,6 @@ public class MainController {
     @ResponseBody
     public String index2(){
         String logstr = service.log("Hello World!");
-        log.info("service.log 返回值：{}",logstr);
-        return "hello world!";
+        return logstr;
     }
 }

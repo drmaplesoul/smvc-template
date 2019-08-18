@@ -2,11 +2,16 @@ package com.zdr.component;
 
 import com.zdr.annotion.CatTranstion;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -64,10 +69,22 @@ public class CatTransactionAdvice {
     @Around("catTranstion()")
     public Object aroundExec(ProceedingJoinPoint pjp) throws Throwable {
         log.info("aroundExec before exec...");
+        // 获取参数
+        Signature signature = pjp.getSignature();
+        MethodSignature methodSignature = (MethodSignature)signature;
+        //2.最关键的一步:通过这获取到方法的所有参数名称的字符串数组
+        String[] parameterNames = methodSignature.getParameterNames();
+        Object[] args = pjp.getArgs();
+        for (String para : parameterNames){
+            int paraIndex =  ArrayUtils.indexOf(parameterNames, para);
+            log.info("参数[{}]:{}={}",paraIndex,para,args[paraIndex]);
+        }
+
         // 必须加上这句，否则导致目标方法没有执行
         Object ret = pjp.proceed();
         log.info("aroundExec after exec...");
         // 必须有返回值，否则会使目标方法返回null
+        log.info("方法{}返回值：{}",methodSignature.getName(),ret);
         return ret;
     }
 }
