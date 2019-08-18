@@ -60,12 +60,14 @@ public class CatTransactionAdvice {
         log.info("catTranstion exception occur");
     }
 
-    // 在执行上面其他操作的同时也执行这个方法
+    // 环境通知，可以在执行前后进行处理，也可以干预目标方法执行
     @Around("catTranstion()")
-    public void aroundExec(ProceedingJoinPoint pjp) throws Throwable {
+    public Object aroundExec(ProceedingJoinPoint pjp) throws Throwable {
         log.info("aroundExec before exec...");
-        pjp.proceed();
+        // 必须加上这句，否则导致目标方法没有执行
+        Object ret = pjp.proceed();
         log.info("aroundExec after exec...");
-
+        // 必须有返回值，否则会使目标方法返回null
+        return ret;
     }
 }
